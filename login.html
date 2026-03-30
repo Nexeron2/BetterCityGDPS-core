@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard — Login</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg:       #0a0a0f;
+      --surface:  #12121a;
+      --border:   #1e1e2e;
+      --accent:   #7c3aed;
+      --accent2:  #06b6d4;
+      --text:     #e2e8f0;
+      --muted:    #64748b;
+      --error:    #ef4444;
+      --success:  #22c55e;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Syne', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    /* Animated background */
+    .bg-grid {
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(var(--border) 1px, transparent 1px),
+        linear-gradient(90deg, var(--border) 1px, transparent 1px);
+      background-size: 40px 40px;
+      opacity: 0.4;
+      animation: gridMove 20s linear infinite;
+    }
+
+    @keyframes gridMove {
+      0%   { transform: translateY(0); }
+      100% { transform: translateY(40px); }
+    }
+
+    .bg-glow {
+      position: fixed;
+      width: 600px;
+      height: 600px;
+      border-radius: 50%;
+      filter: blur(120px);
+      opacity: 0.15;
+      pointer-events: none;
+    }
+    .bg-glow-1 {
+      background: var(--accent);
+      top: -200px;
+      left: -200px;
+      animation: float1 8s ease-in-out infinite;
+    }
+    .bg-glow-2 {
+      background: var(--accent2);
+      bottom: -200px;
+      right: -200px;
+      animation: float2 10s ease-in-out infinite;
+    }
+
+    @keyframes float1 {
+      0%, 100% { transform: translate(0, 0); }
+      50%       { transform: translate(50px, 30px); }
+    }
+    @keyframes float2 {
+      0%, 100% { transform: translate(0, 0); }
+      50%       { transform: translate(-40px, -40px); }
+    }
+
+    /* Login card */
+    .card {
+      position: relative;
+      z-index: 10;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 48px;
+      width: 100%;
+      max-width: 420px;
+      box-shadow: 0 0 0 1px rgba(124,58,237,0.1), 0 32px 64px rgba(0,0,0,0.5);
+      animation: cardIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+
+    @keyframes cardIn {
+      from { opacity: 0; transform: translateY(24px) scale(0.97); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 32px;
+    }
+
+    .logo-icon {
+      width: 44px;
+      height: 44px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      box-shadow: 0 0 20px rgba(124,58,237,0.4);
+    }
+
+    .logo-text {
+      font-size: 20px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+    }
+
+    .logo-text span {
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    h1 {
+      font-size: 26px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      margin-bottom: 6px;
+    }
+
+    .subtitle {
+      color: var(--muted);
+      font-size: 14px;
+      margin-bottom: 32px;
+      font-family: 'Space Mono', monospace;
+    }
+
+    .field {
+      margin-bottom: 16px;
+    }
+
+    label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 8px;
+      font-family: 'Space Mono', monospace;
+    }
+
+    input {
+      width: 100%;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px 16px;
+      color: var(--text);
+      font-family: 'Space Mono', monospace;
+      font-size: 14px;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      outline: none;
+    }
+
+    input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(124,58,237,0.15);
+    }
+
+    input::placeholder { color: var(--muted); }
+
+    .btn {
+      width: 100%;
+      padding: 13px;
+      background: linear-gradient(135deg, var(--accent), #6d28d9);
+      border: none;
+      border-radius: 8px;
+      color: white;
+      font-family: 'Syne', sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: 8px;
+      transition: opacity 0.2s, transform 0.1s, box-shadow 0.2s;
+      box-shadow: 0 4px 20px rgba(124,58,237,0.35);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn:hover { opacity: 0.9; box-shadow: 0 6px 24px rgba(124,58,237,0.5); }
+    .btn:active { transform: scale(0.98); }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .btn .spinner {
+      display: none;
+      width: 16px;
+      height: 16px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 0.6s linear infinite;
+      margin: 0 auto;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .btn.loading span { display: none; }
+    .btn.loading .spinner { display: block; }
+
+    .error-msg {
+      background: rgba(239,68,68,0.1);
+      border: 1px solid rgba(239,68,68,0.3);
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-size: 13px;
+      color: var(--error);
+      margin-top: 14px;
+      display: none;
+      font-family: 'Space Mono', monospace;
+    }
+
+    .error-msg.show { display: block; animation: shake 0.3s ease; }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25%       { transform: translateX(-4px); }
+      75%       { transform: translateX(4px); }
+    }
+
+    .footer-note {
+      margin-top: 24px;
+      text-align: center;
+      font-size: 12px;
+      color: var(--muted);
+      font-family: 'Space Mono', monospace;
+    }
+
+    .footer-note a {
+      color: var(--accent2);
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-grid"></div>
+  <div class="bg-glow bg-glow-1"></div>
+  <div class="bg-glow bg-glow-2"></div>
+
+  <div class="card">
+    <div class="logo">
+      <div class="logo-icon" id="gdpsIcon">🎮</div>
+      <div class="logo-text"><span id="gdpsName">GDPS</span> Dashboard</div>
+    </div>
+
+    <h1>Welcome back</h1>
+    <p class="subtitle">// Sign in with your GD account</p>
+
+    <div class="field">
+      <label>Username</label>
+      <input type="text" id="userName" placeholder="Your GD username" autocomplete="username">
+    </div>
+
+    <div class="field">
+      <label>Password</label>
+      <input type="password" id="password" placeholder="Your GD password" autocomplete="current-password">
+    </div>
+
+    <button class="btn" id="loginBtn" onclick="login()">
+      <span>Sign In →</span>
+      <div class="spinner"></div>
+    </button>
+
+    <div class="error-msg" id="errorMsg"></div>
+
+    <p class="footer-note">
+      Use your Geometry Dash account credentials.<br>
+      Only moderators have access.
+    </p>
+  </div>
+
+  <script>
+    // Load GDPS name and icon
+    async function loadInfo() {
+      try {
+        const r = await fetch('/dashboard/api/info');
+        const d = await r.json();
+        if (d.name) document.getElementById('gdpsName').textContent = d.name;
+        if (d.icon) document.getElementById('gdpsIcon').innerHTML = `<img src="${d.icon}" style="width:100%;height:100%;object-fit:cover;border-radius:8px">`;
+        if (d.name) document.title = `${d.name} — Dashboard`;
+      } catch {}
+    }
+    loadInfo();
+
+    // Enter to submit
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Enter') login();
+    });
+
+    async function login() {
+      const btn = document.getElementById('loginBtn');
+      const errorMsg = document.getElementById('errorMsg');
+      const userName = document.getElementById('userName').value.trim();
+      const password = document.getElementById('password').value;
+
+      if (!userName || !password) {
+        showError('Please fill in all fields');
+        return;
+      }
+
+      btn.classList.add('loading');
+      btn.disabled = true;
+      errorMsg.classList.remove('show');
+
+      try {
+        const r = await fetch('/dashboard/api/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userName, password })
+        });
+
+        const d = await r.json();
+
+        if (d.success) {
+          localStorage.setItem('dashboard_token', d.token);
+          localStorage.setItem('dashboard_user', JSON.stringify(d.user));
+          window.location.href = '/dashboard/';
+        } else {
+          showError(d.error === 'No dashboard access'
+            ? 'You don\'t have dashboard access'
+            : 'Invalid username or password');
+        }
+      } catch {
+        showError('Connection error. Try again.');
+      } finally {
+        btn.classList.remove('loading');
+        btn.disabled = false;
+      }
+    }
+
+    function showError(msg) {
+      const el = document.getElementById('errorMsg');
+      el.textContent = msg;
+      el.classList.remove('show');
+      void el.offsetWidth;
+      el.classList.add('show');
+    }
+  </script>
+</body>
+</html>

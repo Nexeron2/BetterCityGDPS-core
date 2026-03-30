@@ -1,0 +1,11 @@
+{
+    "name":  "@better-city/dashboard-web",
+    "version":  "0.1.0",
+    "private":  true,
+    "main":  "dist/main.js",
+    "types":  "dist/main.d.ts",
+    "scripts":  {
+                    "build":  "tsc -p tsconfig.json \u0026\u0026 node dist/main.js",
+                    "typecheck":  "tsc -p tsconfig.json --noEmit"
+                }
+}

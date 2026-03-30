@@ -1,0 +1,1628 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg:      #0a0a0f;
+      --surface: #12121a;
+      --surface2:#1a1a26;
+      --border:  #1e1e2e;
+      --accent:  #7c3aed;
+      --accent2: #06b6d4;
+      --green:   #22c55e;
+      --yellow:  #eab308;
+      --red:     #ef4444;
+      --text:    #e2e8f0;
+      --muted:   #64748b;
+      --sidebar: 240px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Syne', sans-serif;
+      min-height: 100vh;
+      display: flex;
+    }
+
+    /* ── Sidebar ── */
+    .sidebar {
+      width: var(--sidebar);
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      top: 0; left: 0; bottom: 0;
+      z-index: 100;
+      overflow-y: auto;
+    }
+
+    .sidebar-logo {
+      padding: 20px 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .sidebar-logo-icon {
+      width: 36px; height: 36px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+
+    .sidebar-logo-text {
+      font-weight: 800;
+      font-size: 15px;
+      letter-spacing: -0.3px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .sidebar-section {
+      padding: 8px 8px 0;
+    }
+
+    .sidebar-section-title {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      padding: 12px 8px 6px;
+      font-family: 'Space Mono', monospace;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 10px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--muted);
+      transition: background 0.15s, color 0.15s;
+      text-decoration: none;
+      margin-bottom: 2px;
+    }
+
+    .nav-item:hover { background: var(--surface2); color: var(--text); }
+    .nav-item.active { background: rgba(124,58,237,0.15); color: var(--accent); }
+    .nav-item .icon { font-size: 16px; width: 20px; text-align: center; flex-shrink: 0; }
+
+    .nav-badge {
+      margin-left: auto;
+      background: var(--accent);
+      color: white;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 1px 6px;
+      border-radius: 20px;
+      font-family: 'Space Mono', monospace;
+    }
+
+    .sidebar-bottom {
+      margin-top: auto;
+      padding: 12px 8px;
+      border-top: 1px solid var(--border);
+    }
+
+    .user-card {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px;
+      border-radius: 8px;
+      background: var(--surface2);
+      cursor: pointer;
+    }
+
+    .user-avatar {
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px;
+      font-weight: 800;
+      flex-shrink: 0;
+    }
+
+    .user-name { font-size: 13px; font-weight: 700; }
+    .user-role { font-size: 11px; color: var(--muted); font-family: 'Space Mono', monospace; }
+
+    /* ── Main content ── */
+    .main {
+      margin-left: var(--sidebar);
+      flex: 1;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .topbar {
+      height: 56px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      padding: 0 24px;
+      gap: 12px;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+
+    .topbar-title {
+      font-size: 16px;
+      font-weight: 800;
+      letter-spacing: -0.3px;
+    }
+
+    .topbar-right {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .topbar-btn {
+      padding: 6px 14px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text);
+      font-family: 'Space Mono', monospace;
+      font-size: 12px;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .topbar-btn:hover { background: var(--border); }
+
+    .content {
+      padding: 24px;
+      flex: 1;
+    }
+
+    /* ── Stats cards ── */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 14px;
+      margin-bottom: 24px;
+    }
+
+    .stat-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 18px 20px;
+      transition: border-color 0.2s, transform 0.15s;
+      animation: fadeUp 0.4s ease both;
+    }
+
+    .stat-card:hover { border-color: var(--accent); transform: translateY(-2px); }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .stat-label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      font-family: 'Space Mono', monospace;
+      margin-bottom: 8px;
+    }
+
+    .stat-value {
+      font-size: 28px;
+      font-weight: 800;
+      letter-spacing: -1px;
+      line-height: 1;
+    }
+
+    .stat-sub {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 4px;
+      font-family: 'Space Mono', monospace;
+    }
+
+    .stat-icon {
+      font-size: 22px;
+      margin-bottom: 10px;
+    }
+
+    /* ── Panels ── */
+    .panels {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin-bottom: 24px;
+    }
+
+    @media (max-width: 900px) { .panels { grid-template-columns: 1fr; } }
+
+    .panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .panel-header {
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .panel-title {
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: -0.2px;
+    }
+
+    .panel-action {
+      font-size: 11px;
+      color: var(--accent2);
+      cursor: pointer;
+      font-family: 'Space Mono', monospace;
+    }
+
+    .panel-body { padding: 4px 0; }
+
+    .list-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 18px;
+      border-bottom: 1px solid var(--border);
+      transition: background 0.1s;
+      cursor: pointer;
+    }
+
+    .list-item:last-child { border-bottom: none; }
+    .list-item:hover { background: var(--surface2); }
+
+    .list-item-icon {
+      width: 32px; height: 32px;
+      border-radius: 8px;
+      background: var(--surface2);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px;
+      flex-shrink: 0;
+    }
+
+    .list-item-main { flex: 1; min-width: 0; }
+    .list-item-name { font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .list-item-sub  { font-size: 11px; color: var(--muted); font-family: 'Space Mono', monospace; }
+
+    .badge {
+      padding: 2px 8px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 700;
+      font-family: 'Space Mono', monospace;
+      flex-shrink: 0;
+    }
+    .badge-rated    { background: rgba(234,179,8,0.15);  color: var(--yellow); }
+    .badge-featured { background: rgba(6,182,212,0.15);  color: var(--accent2); }
+    .badge-epic     { background: rgba(124,58,237,0.15); color: var(--accent); }
+    .badge-new      { background: rgba(34,197,94,0.15);  color: var(--green); }
+
+    /* ── Quick actions ── */
+    .quick-actions {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 10px;
+      margin-bottom: 24px;
+    }
+
+    .qa-btn {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px;
+      cursor: pointer;
+      text-align: center;
+      transition: border-color 0.15s, background 0.15s, transform 0.1s;
+    }
+
+    .qa-btn:hover { border-color: var(--accent); background: rgba(124,58,237,0.05); transform: translateY(-1px); }
+
+    .qa-btn-icon { font-size: 22px; margin-bottom: 6px; }
+    .qa-btn-label { font-size: 12px; font-weight: 700; color: var(--muted); }
+
+    /* ── Loading ── */
+    .skeleton {
+      background: linear-gradient(90deg, var(--surface) 25%, var(--surface2) 50%, var(--surface) 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.2s infinite;
+      border-radius: 6px;
+    }
+
+    @keyframes shimmer {
+      0%   { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+
+    /* ── Page sections ── */
+    .page { display: none; }
+    .page.active { display: block; }
+
+    /* ── Live dot ── */
+    .live-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--green);
+      display: inline-block;
+      margin-right: 6px;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50%       { opacity: 0.5; transform: scale(0.8); }
+    }
+
+    .logout-btn {
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      border-radius: 6px;
+      padding: 4px 10px;
+      font-size: 11px;
+      cursor: pointer;
+      font-family: 'Space Mono', monospace;
+      transition: border-color 0.15s, color 0.15s;
+    }
+    .logout-btn:hover { border-color: var(--red); color: var(--red); }
+
+    .empty-state {
+      text-align: center;
+      padding: 32px;
+      color: var(--muted);
+      font-family: 'Space Mono', monospace;
+      font-size: 12px;
+    }
+  </style>
+</head>
+<body>
+
+<!-- Sidebar -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-logo">
+    <div class="sidebar-logo-icon" id="sidebarIcon">🎮</div>
+    <div class="sidebar-logo-text" id="sidebarName">Dashboard</div>
+  </div>
+
+  <div class="sidebar-section">
+    <div class="sidebar-section-title">Overview</div>
+    <a class="nav-item active" onclick="navigate('home')" id="nav-home">
+      <span class="icon">📊</span> Home
+    </a>
+    <a class="nav-item" onclick="navigate('livefeed')" id="nav-livefeed">
+      <span class="icon">⚡</span> Live Feed
+      <span class="live-dot" style="margin-left:auto;margin-right:0"></span>
+    </a>
+  </div>
+
+  <div class="sidebar-section">
+    <div class="sidebar-section-title">Content</div>
+    <a class="nav-item" onclick="navigate('levels')" id="nav-levels">
+      <span class="icon">🎮</span> Levels
+    </a>
+    <a class="nav-item" onclick="navigate('users')" id="nav-users">
+      <span class="icon">👥</span> Users
+    </a>
+    <a class="nav-item" onclick="navigate('songs')" id="nav-songs">
+      <span class="icon">🎵</span> Songs
+    </a>
+    <a class="nav-item" onclick="navigate('comments')" id="nav-comments">
+      <span class="icon">💬</span> Comments
+    </a>
+  </div>
+
+  <div class="sidebar-section">
+    <div class="sidebar-section-title">Special</div>
+    <a class="nav-item" onclick="navigate('daily')" id="nav-daily">
+      <span class="icon">📅</span> Daily / Weekly
+    </a>
+    <a class="nav-item" onclick="navigate('packs')" id="nav-packs">
+      <span class="icon">📦</span> Map Packs
+    </a>
+    <a class="nav-item" onclick="navigate('gauntlets')" id="nav-gauntlets">
+      <span class="icon">🏆</span> Gauntlets
+    </a>
+    <a class="nav-item" onclick="navigate('quests')" id="nav-quests">
+      <span class="icon">📋</span> Quests
+    </a>
+    <a class="nav-item" onclick="navigate('events')" id="nav-events">
+      <span class="icon">🎉</span> Events
+    </a>
+    <a class="nav-item" onclick="navigate('vault')" id="nav-vault">
+      <span class="icon">🔐</span> Vault Codes
+    </a>
+  </div>
+
+  <div class="sidebar-section">
+    <div class="sidebar-section-title">Moderation</div>
+    <a class="nav-item" onclick="navigate('mods')" id="nav-mods">
+      <span class="icon">🛡️</span> Moderators
+    </a>
+    <a class="nav-item" onclick="navigate('bans')" id="nav-bans">
+      <span class="icon">🔨</span> Bans
+    </a>
+    <a class="nav-item" onclick="navigate('automod')" id="nav-automod">
+      <span class="icon">🤖</span> Automod
+    </a>
+    <a class="nav-item" onclick="navigate('suggest')" id="nav-suggest">
+      <span class="icon">💡</span> Suggest List
+    </a>
+    <a class="nav-item" onclick="navigate('modlogs')" id="nav-modlogs">
+      <span class="icon">📝</span> Mod Logs
+    </a>
+  </div>
+
+  <div class="sidebar-section">
+    <div class="sidebar-section-title">System</div>
+    <a class="nav-item" onclick="navigate('settings')" id="nav-settings">
+      <span class="icon">⚙️</span> Settings
+    </a>
+    <a class="nav-item" onclick="navigate('security')" id="nav-security">
+      <span class="icon">🔒</span> Security
+    </a>
+    <a class="nav-item" onclick="navigate('themes')" id="nav-themes">
+      <span class="icon">🎨</span> Themes
+    </a>
+    <a class="nav-item" onclick="navigate('backup')" id="nav-backup">
+      <span class="icon">💾</span> Backup
+    </a>
+    <a class="nav-item" onclick="navigate('files')" id="nav-files">
+      <span class="icon">📁</span> Files
+    </a>
+  </div>
+
+  <div class="sidebar-bottom">
+    <div class="user-card">
+      <div class="user-avatar" id="userAvatar">?</div>
+      <div>
+        <div class="user-name" id="userName">Loading...</div>
+        <div class="user-role" id="userRole">mod</div>
+      </div>
+      <button class="logout-btn" onclick="logout()" style="margin-left:auto">Exit</button>
+    </div>
+  </div>
+</aside>
+
+<!-- Main -->
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-title" id="topbarTitle">📊 Home</div>
+    <div class="topbar-right">
+      <span style="font-size:11px;color:var(--muted);font-family:'Space Mono',monospace">
+        <span class="live-dot"></span>online
+      </span>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- HOME PAGE -->
+    <div class="page active" id="page-home">
+      <div class="stats-grid" id="statsGrid">
+        <!-- Filled by JS -->
+        <div class="stat-card skeleton" style="height:90px;animation-delay:0s"></div>
+        <div class="stat-card skeleton" style="height:90px;animation-delay:0.05s"></div>
+        <div class="stat-card skeleton" style="height:90px;animation-delay:0.1s"></div>
+        <div class="stat-card skeleton" style="height:90px;animation-delay:0.15s"></div>
+        <div class="stat-card skeleton" style="height:90px;animation-delay:0.2s"></div>
+        <div class="stat-card skeleton" style="height:90px;animation-delay:0.25s"></div>
+      </div>
+
+      <div style="margin-bottom:12px">
+        <div style="font-size:12px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);font-family:'Space Mono',monospace;margin-bottom:10px">Quick Actions</div>
+        <div class="quick-actions" id="quickActions">
+          <!-- Filled by JS based on permissions -->
+        </div>
+      </div>
+
+      <div class="panels">
+        <div class="panel">
+          <div class="panel-header">
+            <div class="panel-title">Recent Levels</div>
+            <div class="panel-action" onclick="navigate('levels')">View all →</div>
+          </div>
+          <div class="panel-body" id="recentLevels">
+            <div class="empty-state">Loading...</div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-header">
+            <div class="panel-title">Recent Users</div>
+            <div class="panel-action" onclick="navigate('users')">View all →</div>
+          </div>
+          <div class="panel-body" id="recentUsers">
+            <div class="empty-state">Loading...</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PLACEHOLDER PAGES -->
+    <div class="page" id="page-levels">
+      <!-- Toolbar -->
+      <div style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;align-items:center">
+        <input type="text" id="lvlSearch" placeholder="Search by name or ID..." 
+          style="flex:1;min-width:200px;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:9px 14px;color:var(--text);font-family:'Space Mono',monospace;font-size:13px;outline:none"
+          oninput="lvlSearchDebounce()">
+        <select id="lvlFilter" onchange="lvlLoad()" 
+          style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:9px 12px;color:var(--text);font-family:'Space Mono',monospace;font-size:12px;outline:none">
+          <option value="">All levels</option>
+          <option value="rated">Rated only</option>
+          <option value="unrated">Unrated only</option>
+          <option value="featured">Featured</option>
+          <option value="epic">Epic+</option>
+        </select>
+        <select id="lvlSort" onchange="lvlLoad()"
+          style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:9px 12px;color:var(--text);font-family:'Space Mono',monospace;font-size:12px;outline:none">
+          <option value="newest">Newest</option>
+          <option value="oldest">Oldest</option>
+          <option value="downloads">Most downloaded</option>
+          <option value="likes">Most liked</option>
+          <option value="stars">Most stars</option>
+        </select>
+      </div>
+
+      <!-- Table -->
+      <div class="panel" style="overflow:hidden">
+        <div style="overflow-x:auto">
+          <table style="width:100%;border-collapse:collapse;font-size:13px">
+            <thead>
+              <tr style="border-bottom:1px solid var(--border)">
+                <th style="padding:10px 16px;text-align:left;font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);font-family:'Space Mono',monospace;white-space:nowrap">Level</th>
+                <th style="padding:10px 16px;text-align:left;font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);font-family:'Space Mono',monospace;white-space:nowrap">Author</th>
+                <th style="padding:10px 16px;text-align:center;font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);font-family:'Space Mono',monospace">Rating</th>
+                <th style="padding:10px 16px;text-align:center;font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);font-family:'Space Mono',monospace">DL</th>
+                <th style="padding:10px 16px;text-align:right;font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);font-family:'Space Mono',monospace">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="lvlTableBody">
+              <tr><td colspan="5" style="padding:32px;text-align:center;color:var(--muted);font-family:'Space Mono',monospace;font-size:12px">Loading...</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div id="lvlPagination" style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-top:1px solid var(--border)">
+          <span id="lvlTotal" style="font-size:12px;color:var(--muted);font-family:'Space Mono',monospace"></span>
+          <div style="display:flex;gap:6px">
+            <button onclick="lvlPage(-1)" style="padding:5px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:12px;cursor:pointer;font-family:'Space Mono',monospace">← Prev</button>
+            <span id="lvlPageNum" style="padding:5px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:6px;font-size:12px;font-family:'Space Mono',monospace">1</span>
+            <button onclick="lvlPage(1)" style="padding:5px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:12px;cursor:pointer;font-family:'Space Mono',monospace">Next →</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Rate Modal -->
+      <div id="rateModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:1000;align-items:center;justify-content:center">
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:28px;width:100%;max-width:440px;margin:16px">
+          <h2 style="font-size:18px;font-weight:800;margin-bottom:6px">Rate Level</h2>
+          <p id="rateLevelName" style="color:var(--muted);font-size:13px;font-family:'Space Mono',monospace;margin-bottom:20px"></p>
+          
+          <div style="margin-bottom:14px">
+            <label style="display:block;font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;font-family:'Space Mono',monospace">Stars (0 = unrate)</label>
+            <input type="number" id="rateStars" min="0" max="10" value="1"
+              style="width:100%;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:10px 14px;color:var(--text);font-family:'Space Mono',monospace;font-size:14px;outline:none">
+          </div>
+
+          <div style="margin-bottom:14px">
+            <label style="display:block;font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;font-family:'Space Mono',monospace">Feature</label>
+            <select id="rateFeature"
+              style="width:100%;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:10px 14px;color:var(--text);font-family:'Space Mono',monospace;font-size:13px;outline:none">
+              <option value="0">None</option>
+              <option value="1">Featured</option>
+              <option value="2">Epic</option>
+              <option value="3">Legendary</option>
+              <option value="4">Mythic</option>
+            </select>
+          </div>
+
+          <div style="display:flex;gap:8px;margin-top:20px">
+            <button onclick="closeRateModal()" style="flex:1;padding:10px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--muted);font-size:13px;cursor:pointer;font-family:'Space Mono',monospace">Cancel</button>
+            <button onclick="submitRate()" style="flex:1;padding:10px;background:var(--accent);border:none;border-radius:8px;color:white;font-size:13px;font-weight:700;cursor:pointer;font-family:'Syne',sans-serif">Rate ⭐</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="page" id="page-users">
+      <div style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;align-items:center">
+        <input type="text" id="usrSearch" placeholder="Search by username..."
+          style="flex:1;min-width:200px;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:9px 14px;color:var(--text);font-family:'Space Mono',monospace;font-size:13px;outline:none"
+          oninput="usrSearchDebounce()">
+        <select id="usrSort" onchange="usrLoad()"
+          style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:9px 12px;color:var(--text);font-family:'Space Mono',monospace;font-size:12px;outline:none">
+          <option value="newest">Newest</option>
+          <option value="oldest">Oldest</option>
+          <option value="stars">Most stars</option>
+          <option value="demons">Most demons</option>
+          <option value="cp">Most CP</option>
+        </select>
+      </div>
+      <div class="panel" style="overflow:hidden">
+        <div style="overflow-x:auto">
+          <table style="width:100%;border-collapse:collapse;font-size:13px">
+            <thead>
+              <tr style="border-bottom:1px solid var(--border)">
+                <th style="padding:10px 16px;text-align:left;font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);font-family:'Space Mono',monospace">User</th>
+                <th style="padding:10px 16px;text-align:center;font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);font-family:'Space Mono',monospace">Stars</th>
+                <th style="padding:10px 16px;text-align:center;font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);font-family:'Space Mono',monospace">Demons</th>
+                <th style="padding:10px 16px;text-align:center;font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);font-family:'Space Mono',monospace">CP</th>
+                <th style="padding:10px 16px;text-align:right;font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);font-family:'Space Mono',monospace">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="usrTableBody">
+              <tr><td colspan="5" style="padding:32px;text-align:center;color:var(--muted);font-family:'Space Mono',monospace;font-size:12px">Loading...</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-top:1px solid var(--border)">
+          <span id="usrTotal" style="font-size:12px;color:var(--muted);font-family:'Space Mono',monospace"></span>
+          <div style="display:flex;gap:6px">
+            <button onclick="usrPage(-1)" style="padding:5px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:12px;cursor:pointer;font-family:'Space Mono',monospace">← Prev</button>
+            <span id="usrPageNum" style="padding:5px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:6px;font-size:12px;font-family:'Space Mono',monospace">1</span>
+            <button onclick="usrPage(1)" style="padding:5px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:12px;cursor:pointer;font-family:'Space Mono',monospace">Next →</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Ban Modal -->
+      <div id="banModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:1000;align-items:center;justify-content:center">
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:28px;width:100%;max-width:440px;margin:16px">
+          <h2 style="font-size:18px;font-weight:800;margin-bottom:6px">Ban User</h2>
+          <p id="banUserName" style="color:var(--muted);font-size:13px;font-family:'Space Mono',monospace;margin-bottom:20px"></p>
+          <div style="margin-bottom:14px">
+            <label style="display:block;font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;font-family:'Space Mono',monospace">Ban Type</label>
+            <select id="banType" style="width:100%;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:10px 14px;color:var(--text);font-family:'Space Mono',monospace;font-size:13px;outline:none">
+              <option value="0">Leaderboard Ban</option>
+              <option value="1">Creator Ban</option>
+              <option value="2">Upload Ban</option>
+              <option value="3">Comment Ban</option>
+              <option value="4">Account Ban</option>
+            </select>
+          </div>
+          <div style="margin-bottom:14px">
+            <label style="display:block;font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;font-family:'Space Mono',monospace">Reason</label>
+            <input type="text" id="banReason" placeholder="Ban reason..."
+              style="width:100%;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:10px 14px;color:var(--text);font-family:'Space Mono',monospace;font-size:13px;outline:none">
+          </div>
+          <div style="margin-bottom:14px">
+            <label style="display:block;font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;font-family:'Space Mono',monospace">Expires (empty = permanent)</label>
+            <input type="datetime-local" id="banExpires"
+              style="width:100%;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:10px 14px;color:var(--text);font-family:'Space Mono',monospace;font-size:13px;outline:none">
+          </div>
+          <div style="display:flex;gap:8px;margin-top:20px">
+            <button onclick="closeBanModal()" style="flex:1;padding:10px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--muted);font-size:13px;cursor:pointer;font-family:'Space Mono',monospace">Cancel</button>
+            <button onclick="submitBan()" style="flex:1;padding:10px;background:var(--red);border:none;border-radius:8px;color:white;font-size:13px;font-weight:700;cursor:pointer;font-family:'Syne',sans-serif">Ban 🔨</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Rename Modal -->
+      <div id="renameModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:1000;align-items:center;justify-content:center">
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:28px;width:100%;max-width:400px;margin:16px">
+          <h2 style="font-size:18px;font-weight:800;margin-bottom:20px">Rename User</h2>
+          <input type="text" id="renameInput" placeholder="New username..."
+            style="width:100%;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:10px 14px;color:var(--text);font-family:'Space Mono',monospace;font-size:13px;outline:none;margin-bottom:16px">
+          <div style="display:flex;gap:8px">
+            <button onclick="closeRenameModal()" style="flex:1;padding:10px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--muted);font-size:13px;cursor:pointer;font-family:'Space Mono',monospace">Cancel</button>
+            <button onclick="submitRename()" style="flex:1;padding:10px;background:var(--accent);border:none;border-radius:8px;color:white;font-size:13px;font-weight:700;cursor:pointer">Rename</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="page" id="page-livefeed">
+      <div style="color:var(--muted);font-family:'Space Mono',monospace;font-size:13px">⚡ Live feed — coming soon</div>
+    </div>
+    <div class="page" id="page-songs">
+      <div style="color:var(--muted);font-family:'Space Mono',monospace;font-size:13px">🎵 Songs — coming soon</div>
+    </div>
+    <div class="page" id="page-comments">
+      <div style="color:var(--muted);font-family:'Space Mono',monospace;font-size:13px">💬 Comments — coming soon</div>
+    </div>
+    <div class="page" id="page-daily">
+      <!-- Tabs -->
+      <div style="display:flex;gap:8px;margin-bottom:16px">
+        <button id="dailyTab0" onclick="switchDailyTab(0)" style="padding:8px 18px;background:var(--accent);border:none;border-radius:8px;color:white;font-size:13px;font-weight:700;cursor:pointer;font-family:'Syne',sans-serif">Daily</button>
+        <button id="dailyTab1" onclick="switchDailyTab(1)" style="padding:8px 18px;background:var(--surface);border:1px solid var(--border);border-radius:8px;color:var(--muted);font-size:13px;font-weight:700;cursor:pointer;font-family:'Syne',sans-serif">Weekly</button>
+      </div>
+
+      <!-- Current + Next -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px">
+        <div class="panel" style="padding:16px">
+          <div style="font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);font-family:'Space Mono',monospace;margin-bottom:10px">Current</div>
+          <div id="dailyCurrent" style="font-size:13px">Loading...</div>
+        </div>
+        <div class="panel" style="padding:16px">
+          <div style="font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);font-family:'Space Mono',monospace;margin-bottom:10px">Next in queue</div>
+          <div id="dailyNext" style="font-size:13px">Loading...</div>
+        </div>
+      </div>
+
+      <!-- Add level -->
+      <div class="panel" style="padding:16px;margin-bottom:16px">
+        <div style="font-size:13px;font-weight:700;margin-bottom:12px">Add Level to Queue</div>
+        <div style="display:flex;gap:8px">
+          <input type="number" id="dailyLevelID" placeholder="Level ID..."
+            style="flex:1;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:9px 14px;color:var(--text);font-family:'Space Mono',monospace;font-size:13px;outline:none">
+          <button onclick="addDailyLevel()" style="padding:9px 20px;background:var(--accent);border:none;border-radius:8px;color:white;font-size:13px;font-weight:700;cursor:pointer;font-family:'Syne',sans-serif">Add ＋</button>
+        </div>
+      </div>
+
+      <!-- Queue table -->
+      <div class="panel" style="overflow:hidden">
+        <div class="panel-header">
+          <div class="panel-title" id="dailyTableTitle">Daily Queue</div>
+        </div>
+        <div style="overflow-x:auto">
+          <table style="width:100%;border-collapse:collapse;font-size:13px">
+            <thead>
+              <tr style="border-bottom:1px solid var(--border)">
+                <th style="padding:10px 16px;text-align:left;font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);font-family:'Space Mono',monospace">#</th>
+                <th style="padding:10px 16px;text-align:left;font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);font-family:'Space Mono',monospace">Level</th>
+                <th style="padding:10px 16px;text-align:left;font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);font-family:'Space Mono',monospace">Date</th>
+                <th style="padding:10px 16px;text-align:right;font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);font-family:'Space Mono',monospace">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="dailyTableBody">
+              <tr><td colspan="4" style="padding:32px;text-align:center;color:var(--muted);font-family:'Space Mono',monospace;font-size:12px">Loading...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="page" id="page-packs">
+      <div style="color:var(--muted);font-family:'Space Mono',monospace;font-size:13px">📦 Map Packs — coming soon</div>
+    </div>
+    <div class="page" id="page-gauntlets">
+      <div style="color:var(--muted);font-family:'Space Mono',monospace;font-size:13px">🏆 Gauntlets — coming soon</div>
+    </div>
+    <div class="page" id="page-quests">
+      <div style="color:var(--muted);font-family:'Space Mono',monospace;font-size:13px">📋 Quests — coming soon</div>
+    </div>
+    <div class="page" id="page-events">
+      <div style="color:var(--muted);font-family:'Space Mono',monospace;font-size:13px">🎉 Events — coming soon</div>
+    </div>
+    <div class="page" id="page-vault">
+      <div style="color:var(--muted);font-family:'Space Mono',monospace;font-size:13px">🔐 Vault Codes — coming soon</div>
+    </div>
+    <div class="page" id="page-mods">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+
+        <!-- Mod list -->
+        <div class="panel" style="overflow:hidden">
+          <div class="panel-header">
+            <div class="panel-title">Current Moderators</div>
+            <button onclick="modsLoad()" style="padding:4px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--muted);font-size:11px;cursor:pointer;font-family:'Space Mono',monospace">Refresh</button>
+          </div>
+          <div id="modsListBody" class="panel-body">
+            <div class="empty-state">Loading...</div>
+          </div>
+        </div>
+
+        <!-- Assign role -->
+        <div class="panel">
+          <div class="panel-header">
+            <div class="panel-title">Assign Role</div>
+          </div>
+          <div style="padding:16px;display:flex;flex-direction:column;gap:12px">
+            <div>
+              <label style="display:block;font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;font-family:'Space Mono',monospace">Username or Account ID</label>
+              <input type="text" id="modAssignUser" placeholder="Username or ID..."
+                style="width:100%;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:10px 14px;color:var(--text);font-family:'Space Mono',monospace;font-size:13px;outline:none">
+            </div>
+            <div>
+              <label style="display:block;font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;font-family:'Space Mono',monospace">Role</label>
+              <select id="modAssignRole"
+                style="width:100%;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:10px 14px;color:var(--text);font-family:'Space Mono',monospace;font-size:13px;outline:none">
+                <option value="">Loading roles...</option>
+              </select>
+            </div>
+            <button onclick="submitAssignMod()" style="padding:11px;background:var(--accent);border:none;border-radius:8px;color:white;font-size:14px;font-weight:700;cursor:pointer;font-family:'Syne',sans-serif">Assign Role 🛡️</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="page" id="page-bans">
+      <div class="panel" style="overflow:hidden">
+        <div class="panel-header">
+          <div class="panel-title">Active Bans</div>
+          <button onclick="bansLoad()" style="padding:4px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--muted);font-size:11px;cursor:pointer;font-family:'Space Mono',monospace">Refresh</button>
+        </div>
+        <div style="overflow-x:auto">
+          <table style="width:100%;border-collapse:collapse;font-size:13px">
+            <thead>
+              <tr style="border-bottom:1px solid var(--border)">
+                <th style="padding:10px 16px;text-align:left;font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);font-family:'Space Mono',monospace">Person</th>
+                <th style="padding:10px 16px;text-align:center;font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);font-family:'Space Mono',monospace">Type</th>
+                <th style="padding:10px 16px;text-align:left;font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);font-family:'Space Mono',monospace">Reason</th>
+                <th style="padding:10px 16px;text-align:center;font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);font-family:'Space Mono',monospace">Expires</th>
+                <th style="padding:10px 16px;text-align:right;font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);font-family:'Space Mono',monospace">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="bansTableBody">
+              <tr><td colspan="5" style="padding:32px;text-align:center;color:var(--muted);font-family:'Space Mono',monospace;font-size:12px">Loading...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="page" id="page-automod">
+      <div style="color:var(--muted);font-family:'Space Mono',monospace;font-size:13px">🤖 Automod — coming soon</div>
+    </div>
+    <div class="page" id="page-suggest">
+      <div style="color:var(--muted);font-family:'Space Mono',monospace;font-size:13px">💡 Suggest List — coming soon</div>
+    </div>
+    <div class="page" id="page-modlogs">
+      <div style="color:var(--muted);font-family:'Space Mono',monospace;font-size:13px">📝 Mod Logs — coming soon</div>
+    </div>
+    <div class="page" id="page-settings">
+      <div style="color:var(--muted);font-family:'Space Mono',monospace;font-size:13px">⚙️ Settings — coming soon</div>
+    </div>
+    <div class="page" id="page-security">
+      <div style="color:var(--muted);font-family:'Space Mono',monospace;font-size:13px">🔒 Security — coming soon</div>
+    </div>
+    <div class="page" id="page-themes">
+      <div style="color:var(--muted);font-family:'Space Mono',monospace;font-size:13px">🎨 Themes — coming soon</div>
+    </div>
+    <div class="page" id="page-backup">
+      <div style="color:var(--muted);font-family:'Space Mono',monospace;font-size:13px">💾 Backup — coming soon</div>
+    </div>
+    <div class="page" id="page-files">
+      <div style="color:var(--muted);font-family:'Space Mono',monospace;font-size:13px">📁 Files — coming soon</div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const TOKEN = localStorage.getItem('dashboard_token');
+const USER  = JSON.parse(localStorage.getItem('dashboard_user') || 'null');
+
+// Auth check
+if (!TOKEN || !USER) {
+  window.location.href = '/dashboard/login';
+}
+
+const API = (path) => fetch(`/dashboard/api${path}`, {
+  headers: { Authorization: `Bearer ${TOKEN}` }
+}).then(r => r.json());
+
+// Init
+async function init() {
+  // Load GDPS info
+  try {
+    const info = await fetch('/dashboard/api/info').then(r => r.json());
+    if (info.name) {
+      document.getElementById('sidebarName').textContent = info.name;
+      document.title = `${info.name} — Dashboard`;
+    }
+    if (info.icon) {
+      document.getElementById('sidebarIcon').innerHTML =
+        `<img src="${info.icon}" style="width:100%;height:100%;object-fit:cover;border-radius:8px">`;
+    }
+  } catch {}
+
+  // User info
+  if (USER) {
+    const initials = USER.userName?.slice(0, 2).toUpperCase() || '??';
+    document.getElementById('userAvatar').textContent = initials;
+    document.getElementById('userName').textContent = USER.userName;
+    const perms = USER.permissions || {};
+    document.getElementById('userRole').textContent =
+      perms.isAdmin ? 'admin' : perms.modBadgeLevel >= 2 ? 'elder mod' : 'mod';
+  }
+
+  // Build quick actions based on permissions
+  buildQuickActions();
+
+  // Load stats
+  loadStats();
+
+  // Load recent data
+  loadRecentLevels();
+  loadRecentUsers();
+}
+
+function buildQuickActions() {
+  const perms = USER?.permissions || {};
+  const actions = [];
+
+  if (perms.commandRate || perms.isAdmin)
+    actions.push({ icon: '⭐', label: 'Rate Level', page: 'levels' });
+  if (perms.commandFeature || perms.isAdmin)
+    actions.push({ icon: '✨', label: 'Feature Level', page: 'levels' });
+  if (perms.commandRate || perms.isAdmin)
+    actions.push({ icon: '📅', label: 'Set Daily', page: 'daily' });
+  if (perms.dashboardAddMod || perms.isAdmin)
+    actions.push({ icon: '🛡️', label: 'Add Mod', page: 'mods' });
+  if (perms.dashboardManageLevels || perms.isAdmin)
+    actions.push({ icon: '🔨', label: 'Ban User', page: 'bans' });
+  if (perms.dashboardVaultCodesManage || perms.isAdmin)
+    actions.push({ icon: '🔐', label: 'Vault Code', page: 'vault' });
+  if (perms.isAdmin)
+    actions.push({ icon: '⚙️', label: 'Settings', page: 'settings' });
+  if (perms.isAdmin)
+    actions.push({ icon: '💾', label: 'Backup', page: 'backup' });
+
+  const el = document.getElementById('quickActions');
+  el.innerHTML = actions.map(a => `
+    <div class="qa-btn" onclick="navigate('${a.page}')">
+      <div class="qa-btn-icon">${a.icon}</div>
+      <div class="qa-btn-label">${a.label}</div>
+    </div>
+  `).join('');
+}
+
+async function loadStats() {
+  try {
+    const data = await API('/stats');
+    if (!data.success) return;
+    const s = data.stats;
+
+    document.getElementById('statsGrid').innerHTML = `
+      <div class="stat-card" style="animation-delay:0s">
+        <div class="stat-icon">👥</div>
+        <div class="stat-label">Total Users</div>
+        <div class="stat-value">${fmt(s.users.total)}</div>
+        <div class="stat-sub">${fmt(s.users.active)} active this month</div>
+      </div>
+      <div class="stat-card" style="animation-delay:0.05s">
+        <div class="stat-icon">🎮</div>
+        <div class="stat-label">Total Levels</div>
+        <div class="stat-value">${fmt(s.levels.total)}</div>
+        <div class="stat-sub">${fmt(s.levels.rated)} rated</div>
+      </div>
+      <div class="stat-card" style="animation-delay:0.1s">
+        <div class="stat-icon">⭐</div>
+        <div class="stat-label">Featured</div>
+        <div class="stat-value">${fmt(s.levels.featured)}</div>
+        <div class="stat-sub">${fmt(s.levels.epic)} epic · ${fmt(s.levels.legendary)} legendary</div>
+      </div>
+      <div class="stat-card" style="animation-delay:0.15s">
+        <div class="stat-icon">📥</div>
+        <div class="stat-label">Downloads</div>
+        <div class="stat-value">${fmtK(s.activity.downloads)}</div>
+        <div class="stat-sub">total across all levels</div>
+      </div>
+      <div class="stat-card" style="animation-delay:0.2s">
+        <div class="stat-icon">💬</div>
+        <div class="stat-label">Comments</div>
+        <div class="stat-value">${fmtK(s.activity.comments)}</div>
+        <div class="stat-sub">${fmt(s.activity.posts)} profile posts</div>
+      </div>
+      <div class="stat-card" style="animation-delay:0.25s">
+        <div class="stat-icon">🔨</div>
+        <div class="stat-label">Active Bans</div>
+        <div class="stat-value" style="color:${s.bans.active > 0 ? 'var(--red)' : 'var(--green)'}">${fmt(s.bans.active)}</div>
+        <div class="stat-sub">${fmt(s.special.dailies)} dailies · ${fmt(s.special.weeklies)} weeklies</div>
+      </div>
+    `;
+  } catch (e) {
+    document.getElementById('statsGrid').innerHTML = `<div style="color:var(--muted);font-size:12px;font-family:'Space Mono',monospace">Failed to load stats</div>`;
+  }
+}
+
+async function loadRecentLevels() {
+  try {
+    const data = await API('/levels?limit=5&sort=newest');
+    const el = document.getElementById('recentLevels');
+    if (!data.success || !data.levels?.length) {
+      el.innerHTML = '<div class="empty-state">No levels yet</div>';
+      return;
+    }
+    el.innerHTML = data.levels.map(l => `
+      <div class="list-item" onclick="navigate('levels')">
+        <div class="list-item-icon">${l.starStars > 0 ? '⭐' : '🎮'}</div>
+        <div class="list-item-main">
+          <div class="list-item-name">${esc(l.levelName)}</div>
+          <div class="list-item-sub">by ${esc(l.userName)} · ${l.downloads} DL</div>
+        </div>
+        ${l.starStars > 0 ? `<span class="badge badge-rated">${l.starStars}★</span>` : ''}
+        ${l.starFeatured > 0 ? `<span class="badge badge-featured">feat</span>` : ''}
+      </div>
+    `).join('');
+  } catch {
+    document.getElementById('recentLevels').innerHTML = '<div class="empty-state">Failed to load</div>';
+  }
+}
+
+async function loadRecentUsers() {
+  try {
+    const data = await API('/users?limit=5&sort=newest');
+    const el = document.getElementById('recentUsers');
+    if (!data.success || !data.users?.length) {
+      el.innerHTML = '<div class="empty-state">No users yet</div>';
+      return;
+    }
+    el.innerHTML = data.users.map(u => `
+      <div class="list-item" onclick="navigate('users')">
+        <div class="list-item-icon">👤</div>
+        <div class="list-item-main">
+          <div class="list-item-name">${esc(u.userName)}</div>
+          <div class="list-item-sub">${u.stars}★ · ${u.demons} demons</div>
+        </div>
+        <span class="badge badge-new">new</span>
+      </div>
+    `).join('');
+  } catch {
+    document.getElementById('recentUsers').innerHTML = '<div class="empty-state">Failed to load</div>';
+  }
+}
+
+// Navigation
+const pageNames = {
+  home: '📊 Home', levels: '🎮 Levels', users: '👥 Users',
+  songs: '🎵 Songs', comments: '💬 Comments', daily: '📅 Daily / Weekly',
+  packs: '📦 Map Packs', gauntlets: '🏆 Gauntlets', quests: '📋 Quests',
+  events: '🎉 Events', vault: '🔐 Vault Codes', mods: '🛡️ Moderators',
+  bans: '🔨 Bans', automod: '🤖 Automod', suggest: '💡 Suggest List',
+  modlogs: '📝 Mod Logs', settings: '⚙️ Settings', security: '🔒 Security',
+  themes: '🎨 Themes', backup: '💾 Backup', files: '📁 Files',
+  livefeed: '⚡ Live Feed',
+};
+
+function navigate(page) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  const pageEl = document.getElementById(`page-${page}`);
+  const navEl  = document.getElementById(`nav-${page}`);
+  if (pageEl) pageEl.classList.add('active');
+  if (navEl)  navEl.classList.add('active');
+  document.getElementById('topbarTitle').textContent = pageNames[page] || page;
+  window.history.pushState({}, '', `/dashboard/${page === 'home' ? '' : page}`);
+  // Load page data
+  if (page === 'levels') { lvlCurrentPage = 0; lvlLoad(); }
+  if (page === 'users')  { usrCurrentPage = 0; usrLoad(); }
+  if (page === 'bans')   { bansLoad(); }
+  if (page === 'mods')   { modsLoad(); loadRoles(); }
+  if (page === 'daily')  { dailyLoad(); }
+}
+
+function logout() {
+  localStorage.removeItem('dashboard_token');
+  localStorage.removeItem('dashboard_user');
+  window.location.href = '/dashboard/login';
+}
+
+// Helpers
+function fmt(n)  { return Number(n || 0).toLocaleString(); }
+function fmtK(n) { n = Number(n || 0); return n > 999999 ? (n/1000000).toFixed(1)+'M' : n > 999 ? (n/1000).toFixed(1)+'K' : String(n); }
+function esc(s)  { return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+
+// ── Levels page ──────────────────────────────────────────────────────────────
+let lvlCurrentPage = 0;
+let lvlSearchTimer = null;
+let lvlRatingID    = null;
+
+function lvlSearchDebounce() {
+  clearTimeout(lvlSearchTimer);
+  lvlSearchTimer = setTimeout(() => { lvlCurrentPage = 0; lvlLoad(); }, 400);
+}
+
+function lvlPage(dir) {
+  lvlCurrentPage = Math.max(0, lvlCurrentPage + dir);
+  lvlLoad();
+}
+
+async function lvlLoad() {
+  const search = document.getElementById('lvlSearch')?.value || '';
+  const filter = document.getElementById('lvlFilter')?.value || '';
+  const sort   = document.getElementById('lvlSort')?.value || 'newest';
+
+  let url = `/dashboard/api/levels?limit=20&page=${lvlCurrentPage}&sort=${sort}`;
+  if (search) url += `&search=${encodeURIComponent(search)}`;
+  if (filter) url += `&filter=${filter}`;
+
+  const tbody = document.getElementById('lvlTableBody');
+  tbody.innerHTML = `<tr><td colspan="5" style="padding:32px;text-align:center;color:var(--muted);font-family:'Space Mono',monospace;font-size:12px">Loading...</td></tr>`;
+
+  try {
+    const data = await API_GET(url);
+    if (!data.success) throw new Error();
+
+    document.getElementById('lvlTotal').textContent = `${fmt(data.total)} levels`;
+    document.getElementById('lvlPageNum').textContent = `${lvlCurrentPage + 1}`;
+
+    if (!data.levels.length) {
+      tbody.innerHTML = `<tr><td colspan="5" style="padding:32px;text-align:center;color:var(--muted);font-family:'Space Mono',monospace;font-size:12px">No levels found</td></tr>`;
+      return;
+    }
+
+    const perms = USER?.permissions || {};
+    const canRate   = perms.commandRate || perms.isAdmin;
+    const canDelete = perms.isAdmin;
+
+    tbody.innerHTML = data.levels.map(l => {
+      const epicLabels = ['', 'Featured', 'Epic', 'Legendary', 'Mythic'];
+      const epicColors = ['', 'var(--accent2)', 'var(--accent)', '#f59e0b', '#ec4899'];
+      let ratingBadge = '';
+      if (l.starStars > 0) {
+        if (l.starFeatured > 0) {
+          const ei = Math.min(l.starEpic || 0, 4);
+          ratingBadge = `<span style="padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700;background:rgba(124,58,237,0.15);color:${epicColors[ei] || 'var(--accent)'};font-family:'Space Mono',monospace">${epicLabels[ei] || 'Featured'}</span> `;
+        }
+        ratingBadge += `<span style="padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700;background:rgba(234,179,8,0.15);color:var(--yellow);font-family:'Space Mono',monospace">${l.starStars}★</span>`;
+      } else {
+        ratingBadge = `<span style="color:var(--muted);font-size:11px;font-family:'Space Mono',monospace">unrated</span>`;
+      }
+
+      const reupBadge = l.originalServer 
+        ? `<span style="padding:1px 6px;border-radius:4px;font-size:9px;font-weight:700;background:rgba(6,182,212,0.1);color:var(--accent2);font-family:'Space Mono',monospace;margin-left:4px" title="Reupload from ${esc(l.originalServer)}">reup</span>`
+        : '';
+
+      const actions = [];
+      if (canRate) {
+        if (l.starStars > 0) {
+          actions.push(`<button onclick="openRateModal(${l.levelID},'${esc(l.levelName)}')" style="padding:4px 10px;background:rgba(234,179,8,0.1);border:1px solid rgba(234,179,8,0.2);border-radius:6px;color:var(--yellow);font-size:11px;cursor:pointer;font-family:'Space Mono',monospace">re-rate</button>`);
+          actions.push(`<button onclick="unrateLevel(${l.levelID})" style="padding:4px 10px;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.2);border-radius:6px;color:var(--red);font-size:11px;cursor:pointer;font-family:'Space Mono',monospace">unrate</button>`);
+        } else {
+          actions.push(`<button onclick="openRateModal(${l.levelID},'${esc(l.levelName)}')" style="padding:4px 10px;background:rgba(124,58,237,0.1);border:1px solid rgba(124,58,237,0.2);border-radius:6px;color:var(--accent);font-size:11px;cursor:pointer;font-family:'Space Mono',monospace">rate</button>`);
+        }
+      }
+      if (canDelete) {
+        actions.push(`<button onclick="deleteLevel(${l.levelID},'${esc(l.levelName)}')" style="padding:4px 10px;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.2);border-radius:6px;color:var(--red);font-size:11px;cursor:pointer;font-family:'Space Mono',monospace">del</button>`);
+      }
+
+      return `<tr style="border-bottom:1px solid var(--border);transition:background 0.1s" onmouseover="this.style.background='var(--surface2)'" onmouseout="this.style.background=''">
+        <td style="padding:10px 16px">
+          <div style="font-weight:600;font-size:13px">${esc(l.levelName)}${reupBadge}</div>
+          <div style="font-size:11px;color:var(--muted);font-family:'Space Mono',monospace">ID: ${l.levelID}</div>
+        </td>
+        <td style="padding:10px 16px">
+          <div style="font-size:13px">${esc(l.userName)}</div>
+        </td>
+        <td style="padding:10px 16px;text-align:center">${ratingBadge}</td>
+        <td style="padding:10px 16px;text-align:center;font-size:12px;color:var(--muted);font-family:'Space Mono',monospace">${fmtK(l.downloads)}</td>
+        <td style="padding:10px 16px;text-align:right">
+          <div style="display:flex;gap:4px;justify-content:flex-end">${actions.join('')}</div>
+        </td>
+      </tr>`;
+    }).join('');
+  } catch {
+    tbody.innerHTML = `<tr><td colspan="5" style="padding:32px;text-align:center;color:var(--red);font-family:'Space Mono',monospace;font-size:12px">Failed to load levels</td></tr>`;
+  }
+}
+
+function openRateModal(id, name) {
+  lvlRatingID = id;
+  document.getElementById('rateLevelName').textContent = name;
+  document.getElementById('rateStars').value = 1;
+  document.getElementById('rateFeature').value = 0;
+  document.getElementById('rateModal').style.display = 'flex';
+}
+
+function closeRateModal() {
+  document.getElementById('rateModal').style.display = 'none';
+  lvlRatingID = null;
+}
+
+async function submitRate() {
+  if (!lvlRatingID) return;
+  const stars   = Number(document.getElementById('rateStars').value);
+  const feature = Number(document.getElementById('rateFeature').value);
+
+  try {
+    const r = await fetch(`/dashboard/api/level/${lvlRatingID}/rate`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${TOKEN}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ stars, feature })
+    });
+    const d = await r.json();
+    if (d.success) { closeRateModal(); lvlLoad(); showToast('Level rated!', 'success'); }
+    else showToast(d.error || 'Failed', 'error');
+  } catch { showToast('Connection error', 'error'); }
+}
+
+async function unrateLevel(id) {
+  if (!confirm('Unrate this level?')) return;
+  try {
+    const r = await fetch(`/dashboard/api/level/${id}/unrate`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${TOKEN}` }
+    });
+    const d = await r.json();
+    if (d.success) { lvlLoad(); showToast('Level unrated', 'success'); }
+    else showToast(d.error || 'Failed', 'error');
+  } catch { showToast('Connection error', 'error'); }
+}
+
+async function deleteLevel(id, name) {
+  if (!confirm(`Delete level "${name}"?`)) return;
+  try {
+    const r = await fetch(`/dashboard/api/level/${id}`, {
+      method: 'DELETE',
+      headers: { Authorization: `Bearer ${TOKEN}` }
+    });
+    const d = await r.json();
+    if (d.success) { lvlLoad(); showToast('Level deleted', 'success'); }
+    else showToast(d.error || 'Failed', 'error');
+  } catch { showToast('Connection error', 'error'); }
+}
+
+// ── Toast notifications ───────────────────────────────────────────────────────
+function showToast(msg, type = 'success') {
+  const toast = document.createElement('div');
+  toast.textContent = msg;
+  Object.assign(toast.style, {
+    position: 'fixed', bottom: '20px', right: '20px', zIndex: '9999',
+    padding: '10px 18px', borderRadius: '8px', fontSize: '13px',
+    fontFamily: "'Space Mono', monospace", fontWeight: '700',
+    background: type === 'success' ? 'var(--green)' : 'var(--red)',
+    color: 'white', boxShadow: '0 4px 20px rgba(0,0,0,0.4)',
+    animation: 'fadeUp 0.3s ease',
+  });
+  document.body.appendChild(toast);
+  setTimeout(() => toast.remove(), 3000);
+}
+
+// Helper GET with auth
+function API_GET(url) {
+  return fetch(url, { headers: { Authorization: `Bearer ${TOKEN}` } }).then(r => r.json());
+}
+
+
+// ── Users page ────────────────────────────────────────────────────────────────
+let usrCurrentPage = 0;
+let usrSearchTimer = null;
+let usrBanID       = null;
+let usrRenameID    = null;
+
+const BAN_TYPES = ['Leaderboard', 'Creator', 'Upload', 'Comment', 'Account'];
+
+function usrSearchDebounce() {
+  clearTimeout(usrSearchTimer);
+  usrSearchTimer = setTimeout(() => { usrCurrentPage = 0; usrLoad(); }, 400);
+}
+
+function usrPage(dir) {
+  usrCurrentPage = Math.max(0, usrCurrentPage + dir);
+  usrLoad();
+}
+
+async function usrLoad() {
+  const search = document.getElementById('usrSearch')?.value || '';
+  const sort   = document.getElementById('usrSort')?.value || 'newest';
+  let url = `/dashboard/api/users?limit=20&page=${usrCurrentPage}&sort=${sort}`;
+  if (search) url += `&search=${encodeURIComponent(search)}`;
+
+  const tbody = document.getElementById('usrTableBody');
+  tbody.innerHTML = `<tr><td colspan="5" style="padding:32px;text-align:center;color:var(--muted);font-family:'Space Mono',monospace;font-size:12px">Loading...</td></tr>`;
+
+  try {
+    const data = await API_GET(url);
+    if (!data.success) throw new Error();
+
+    document.getElementById('usrTotal').textContent = `${fmt(data.total)} users`;
+    document.getElementById('usrPageNum').textContent = `${usrCurrentPage + 1}`;
+
+    if (!data.users.length) {
+      tbody.innerHTML = `<tr><td colspan="5" style="padding:32px;text-align:center;color:var(--muted);font-family:'Space Mono',monospace;font-size:12px">No users found</td></tr>`;
+      return;
+    }
+
+    const perms = USER?.permissions || {};
+    const canBan    = perms.isAdmin || perms.dashboardModTools;
+    const canRename = perms.isAdmin || perms.dashboardForceChangePassNick;
+
+    tbody.innerHTML = data.users.map(u => {
+      const actions = [];
+      if (canBan) actions.push(`<button onclick="openBanModal(${u.userID},'${esc(u.userName)}')" style="padding:4px 10px;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.2);border-radius:6px;color:var(--red);font-size:11px;cursor:pointer;font-family:'Space Mono',monospace">ban</button>`);
+      if (canRename) actions.push(`<button onclick="openRenameModal(${u.userID},'${esc(u.userName)}')" style="padding:4px 10px;background:rgba(124,58,237,0.1);border:1px solid rgba(124,58,237,0.2);border-radius:6px;color:var(--accent);font-size:11px;cursor:pointer;font-family:'Space Mono',monospace">rename</button>`);
+
+      return `<tr style="border-bottom:1px solid var(--border);transition:background 0.1s" onmouseover="this.style.background='var(--surface2)'" onmouseout="this.style.background=''">
+        <td style="padding:10px 16px">
+          <div style="font-weight:600">${esc(u.userName)}</div>
+          <div style="font-size:11px;color:var(--muted);font-family:'Space Mono',monospace">ID: ${u.userID} · acc: ${u.extID}</div>
+        </td>
+        <td style="padding:10px 16px;text-align:center;font-family:'Space Mono',monospace;font-size:12px">${fmt(u.stars)}⭐</td>
+        <td style="padding:10px 16px;text-align:center;font-family:'Space Mono',monospace;font-size:12px">${fmt(u.demons)}</td>
+        <td style="padding:10px 16px;text-align:center;font-family:'Space Mono',monospace;font-size:12px">${Math.floor(u.creatorPoints || 0)}</td>
+        <td style="padding:10px 16px;text-align:right"><div style="display:flex;gap:4px;justify-content:flex-end">${actions.join('')}</div></td>
+      </tr>`;
+    }).join('');
+  } catch {
+    tbody.innerHTML = `<tr><td colspan="5" style="padding:32px;text-align:center;color:var(--red);font-family:'Space Mono',monospace;font-size:12px">Failed to load</td></tr>`;
+  }
+}
+
+function openBanModal(id, name) {
+  usrBanID = id;
+  document.getElementById('banUserName').textContent = name;
+  document.getElementById('banReason').value = '';
+  document.getElementById('banExpires').value = '';
+  document.getElementById('banModal').style.display = 'flex';
+}
+function closeBanModal() { document.getElementById('banModal').style.display = 'none'; usrBanID = null; }
+
+async function submitBan() {
+  if (!usrBanID) return;
+  const banType = Number(document.getElementById('banType').value);
+  const reason  = document.getElementById('banReason').value;
+  const expires = document.getElementById('banExpires').value;
+  try {
+    const r = await fetch(`/dashboard/api/user/${usrBanID}/ban`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${TOKEN}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ banType, personType: 0, reason, expires: expires || null })
+    });
+    const d = await r.json();
+    if (d.success) { closeBanModal(); usrLoad(); showToast('User banned!', 'success'); }
+    else showToast(d.error || 'Failed', 'error');
+  } catch { showToast('Connection error', 'error'); }
+}
+
+function openRenameModal(id, name) {
+  usrRenameID = id;
+  document.getElementById('renameInput').value = name;
+  document.getElementById('renameModal').style.display = 'flex';
+}
+function closeRenameModal() { document.getElementById('renameModal').style.display = 'none'; usrRenameID = null; }
+
+async function submitRename() {
+  if (!usrRenameID) return;
+  const userName = document.getElementById('renameInput').value.trim();
+  if (!userName) return;
+  try {
+    const r = await fetch(`/dashboard/api/user/${usrRenameID}/rename`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${TOKEN}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userName })
+    });
+    const d = await r.json();
+    if (d.success) { closeRenameModal(); usrLoad(); showToast('User renamed!', 'success'); }
+    else showToast(d.error || 'Failed', 'error');
+  } catch { showToast('Connection error', 'error'); }
+}
+
+// ── Bans page ─────────────────────────────────────────────────────────────────
+async function bansLoad() {
+  const tbody = document.getElementById('bansTableBody');
+  tbody.innerHTML = `<tr><td colspan="5" style="padding:32px;text-align:center;color:var(--muted);font-family:'Space Mono',monospace;font-size:12px">Loading...</td></tr>`;
+  try {
+    const data = await API_GET('/dashboard/api/bans?limit=50');
+    if (!data.success || !data.bans.length) {
+      tbody.innerHTML = `<tr><td colspan="5" style="padding:32px;text-align:center;color:var(--muted);font-family:'Space Mono',monospace;font-size:12px">No active bans</td></tr>`;
+      return;
+    }
+    const banTypeLabels = ['Leaderboard', 'Creator', 'Upload', 'Comment', 'Account'];
+    tbody.innerHTML = data.bans.map(b => {
+      const expires = b.expires >= 2147483647 ? 'Permanent' : new Date(b.expires * 1000).toLocaleDateString();
+      return `<tr style="border-bottom:1px solid var(--border)">
+        <td style="padding:10px 16px;font-family:'Space Mono',monospace;font-size:12px">${esc(String(b.person))}</td>
+        <td style="padding:10px 16px;text-align:center"><span style="padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700;background:rgba(239,68,68,0.15);color:var(--red);font-family:'Space Mono',monospace">${banTypeLabels[b.banType] || b.banType}</span></td>
+        <td style="padding:10px 16px;font-size:12px;color:var(--muted)">${esc(b.reason) || '—'}</td>
+        <td style="padding:10px 16px;text-align:center;font-size:11px;font-family:'Space Mono',monospace;color:${b.expires >= 2147483647 ? 'var(--red)' : 'var(--muted)'}">${expires}</td>
+        <td style="padding:10px 16px;text-align:right">
+          <button onclick="unbanUser(${b.person},${b.banType})" style="padding:4px 10px;background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.2);border-radius:6px;color:var(--green);font-size:11px;cursor:pointer;font-family:'Space Mono',monospace">unban</button>
+        </td>
+      </tr>`;
+    }).join('');
+  } catch {
+    tbody.innerHTML = `<tr><td colspan="5" style="padding:32px;text-align:center;color:var(--red);font-family:'Space Mono',monospace;font-size:12px">Failed to load</td></tr>`;
+  }
+}
+
+async function unbanUser(person, banType) {
+  try {
+    const r = await fetch(`/dashboard/api/user/${person}/unban`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${TOKEN}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ banType })
+    });
+    const d = await r.json();
+    if (d.success) { bansLoad(); showToast('User unbanned!', 'success'); }
+    else showToast(d.error || 'Failed', 'error');
+  } catch { showToast('Connection error', 'error'); }
+}
+
+
+// ── Moderators page ───────────────────────────────────────────────────────────
+const BADGE_LABELS = ['', 'Mod', 'Elder Mod'];
+const BADGE_COLORS = ['', 'var(--green)', 'var(--yellow)'];
+
+async function modsLoad() {
+  const el = document.getElementById('modsListBody');
+  el.innerHTML = '<div class="empty-state">Loading...</div>';
+
+  try {
+    const data = await API_GET('/dashboard/api/mods');
+    if (!data.success || !data.mods.length) {
+      el.innerHTML = '<div class="empty-state">No moderators assigned</div>';
+      return;
+    }
+
+    const perms = USER?.permissions || {};
+    const canManage = perms.isAdmin || perms.dashboardAddMod;
+
+    el.innerHTML = data.mods.map(m => {
+      const badge = m.modBadgeLevel > 0 
+        ? `<span style="padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700;background:rgba(34,197,94,0.1);color:${BADGE_COLORS[Math.min(m.modBadgeLevel,2)]};font-family:'Space Mono',monospace">${BADGE_LABELS[Math.min(m.modBadgeLevel,2)]}</span>`
+        : '';
+
+      const colorRgb = m.commentColor ? `rgb(${m.commentColor.replace(/,/g,',')})` : 'var(--text)';
+
+      return `<div class="list-item">
+        <div class="list-item-icon" style="background:rgba(124,58,237,0.1)">🛡️</div>
+        <div class="list-item-main">
+          <div class="list-item-name" style="color:${colorRgb}">${esc(m.userName)}</div>
+          <div class="list-item-sub">${esc(m.roleName)} · ID: ${m.accountID}</div>
+        </div>
+        ${badge}
+        ${canManage ? `<button onclick="removeMod(${m.assignID},'${esc(m.userName)}')" style="padding:3px 8px;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.2);border-radius:5px;color:var(--red);font-size:10px;cursor:pointer;font-family:'Space Mono',monospace;margin-left:6px">remove</button>` : ''}
+      </div>`;
+    }).join('');
+  } catch {
+    el.innerHTML = '<div class="empty-state">Failed to load</div>';
+  }
+}
+
+async function loadRoles() {
+  try {
+    const data = await API_GET('/dashboard/api/roles');
+    if (!data.success) return;
+    const select = document.getElementById('modAssignRole');
+    select.innerHTML = data.roles.map(r =>
+      `<option value="${r.roleID}">${esc(r.roleName)}</option>`
+    ).join('');
+  } catch {}
+}
+
+async function submitAssignMod() {
+  const user = document.getElementById('modAssignUser').value.trim();
+  const role = document.getElementById('modAssignRole').value;
+  if (!user || !role) { showToast('Fill all fields', 'error'); return; }
+
+  try {
+    const r = await fetch('/dashboard/api/mods/assign', {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${TOKEN}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ user, role: Number(role) })
+    });
+    const d = await r.json();
+    if (d.success) { modsLoad(); showToast('Role assigned!', 'success'); document.getElementById('modAssignUser').value = ''; }
+    else showToast(d.error || 'Failed', 'error');
+  } catch { showToast('Connection error', 'error'); }
+}
+
+async function removeMod(assignID, name) {
+  if (!confirm(`Remove role from ${name}?`)) return;
+  try {
+    const r = await fetch(`/dashboard/api/mods/${assignID}`, {
+      method: 'DELETE',
+      headers: { Authorization: `Bearer ${TOKEN}` }
+    });
+    const d = await r.json();
+    if (d.success) { modsLoad(); showToast('Role removed!', 'success'); }
+    else showToast(d.error || 'Failed', 'error');
+  } catch { showToast('Connection error', 'error'); }
+}
+
+
+// ── Daily/Weekly page ─────────────────────────────────────────────────────────
+let dailyCurrentType = 0;
+
+function switchDailyTab(type) {
+  dailyCurrentType = type;
+  const labels = ['Daily', 'Weekly'];
+  document.getElementById('dailyTableTitle').textContent = labels[type] + ' Queue';
+  document.getElementById('dailyTab0').style.background = type === 0 ? 'var(--accent)' : 'var(--surface)';
+  document.getElementById('dailyTab0').style.color = type === 0 ? 'white' : 'var(--muted)';
+  document.getElementById('dailyTab0').style.border = type === 0 ? 'none' : '1px solid var(--border)';
+  document.getElementById('dailyTab1').style.background = type === 1 ? 'var(--accent)' : 'var(--surface)';
+  document.getElementById('dailyTab1').style.color = type === 1 ? 'white' : 'var(--muted)';
+  document.getElementById('dailyTab1').style.border = type === 1 ? 'none' : '1px solid var(--border)';
+  dailyLoad();
+}
+
+async function dailyLoad() {
+  try {
+    const data = await API_GET(`/dashboard/api/daily?type=${dailyCurrentType}&limit=20`);
+    if (!data.success) throw new Error();
+
+    // Current
+    const cur = data.current;
+    document.getElementById('dailyCurrent').innerHTML = cur
+      ? `<div style="font-weight:700">${esc(cur.levelName || 'Unknown')}</div>
+         <div style="font-size:11px;color:var(--muted);font-family:'Space Mono',monospace">by ${esc(cur.userName || '?')} · ID: ${cur.levelID}</div>
+         <div style="font-size:11px;color:var(--accent2);font-family:'Space Mono',monospace;margin-top:4px">${new Date(cur.timestamp * 1000).toLocaleDateString()}</div>`
+      : '<div style="color:var(--muted);font-size:12px;font-family:'Space Mono',monospace">None set</div>';
+
+    // Next
+    const nxt = data.next;
+    document.getElementById('dailyNext').innerHTML = nxt
+      ? `<div style="font-weight:700">${esc(nxt.levelName || 'Unknown')}</div>
+         <div style="font-size:11px;color:var(--muted);font-family:'Space Mono',monospace">by ${esc(nxt.userName || '?')} · ID: ${nxt.levelID}</div>
+         <div style="font-size:11px;color:var(--accent2);font-family:'Space Mono',monospace;margin-top:4px">${new Date(nxt.timestamp * 1000).toLocaleDateString()}</div>`
+      : '<div style="color:var(--muted);font-size:12px;font-family:'Space Mono',monospace">Queue empty</div>';
+
+    // Table
+    const tbody = document.getElementById('dailyTableBody');
+    if (!data.entries.length) {
+      tbody.innerHTML = `<tr><td colspan="4" style="padding:32px;text-align:center;color:var(--muted);font-family:'Space Mono',monospace;font-size:12px">No entries</td></tr>`;
+      return;
+    }
+
+    tbody.innerHTML = data.entries.map((e, i) => `
+      <tr style="border-bottom:1px solid var(--border)">
+        <td style="padding:10px 16px;color:var(--muted);font-family:'Space Mono',monospace;font-size:11px">#${i+1}</td>
+        <td style="padding:10px 16px">
+          <div style="font-weight:600">${esc(e.levelName || 'Deleted level')}</div>
+          <div style="font-size:11px;color:var(--muted);font-family:'Space Mono',monospace">ID: ${e.levelID}${e.userName ? ' · by ' + esc(e.userName) : ''}</div>
+        </td>
+        <td style="padding:10px 16px;font-size:12px;color:var(--muted);font-family:'Space Mono',monospace">${new Date(e.timestamp * 1000).toLocaleDateString()}</td>
+        <td style="padding:10px 16px;text-align:right">
+          <button onclick="removeDailyLevel(${e.feaID})" style="padding:4px 10px;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.2);border-radius:6px;color:var(--red);font-size:11px;cursor:pointer;font-family:'Space Mono',monospace">remove</button>
+        </td>
+      </tr>
+    `).join('');
+  } catch {
+    document.getElementById('dailyTableBody').innerHTML = `<tr><td colspan="4" style="padding:32px;text-align:center;color:var(--red);font-family:'Space Mono',monospace;font-size:12px">Failed to load</td></tr>`;
+  }
+}
+
+async function addDailyLevel() {
+  const levelID = document.getElementById('dailyLevelID').value;
+  if (!levelID) { showToast('Enter a level ID', 'error'); return; }
+
+  try {
+    const r = await fetch('/dashboard/api/daily', {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${TOKEN}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ levelID: Number(levelID), type: dailyCurrentType })
+    });
+    const d = await r.json();
+    if (d.success) {
+      document.getElementById('dailyLevelID').value = '';
+      dailyLoad();
+      showToast('Level added to queue!', 'success');
+    } else showToast(d.error || 'Failed', 'error');
+  } catch { showToast('Connection error', 'error'); }
+}
+
+async function removeDailyLevel(feaID) {
+  if (!confirm('Remove from queue?')) return;
+  try {
+    const r = await fetch(`/dashboard/api/daily/${feaID}`, {
+      method: 'DELETE',
+      headers: { Authorization: `Bearer ${TOKEN}` }
+    });
+    const d = await r.json();
+    if (d.success) { dailyLoad(); showToast('Removed!', 'success'); }
+    else showToast(d.error || 'Failed', 'error');
+  } catch { showToast('Connection error', 'error'); }
+}
+
+init();
+</script>
+</body>
+</html>

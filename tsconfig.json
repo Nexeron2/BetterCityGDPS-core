@@ -1,0 +1,28 @@
+{
+    "files":  [
+
+              ],
+    "references":  [
+                       {
+                           "path":  "./apps/core-api"
+                       },
+                       {
+                           "path":  "./apps/dashboard-api"
+                       },
+                       {
+                           "path":  "./apps/dashboard-web"
+                       },
+                       {
+                           "path":  "./apps/installer"
+                       },
+                       {
+                           "path":  "./packages/shared"
+                       },
+                       {
+                           "path":  "./packages/i18n"
+                       },
+                       {
+                           "path":  "./packages/permissions"
+                       }
+                   ]
+}

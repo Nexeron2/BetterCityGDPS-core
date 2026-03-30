@@ -1,0 +1,25 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "CommonJS",
+    "moduleResolution": "Node",
+    "strict": true,
+    "allowJs": false,
+    "skipLibCheck": true,
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "baseUrl": ".",
+    "paths": {
+      "@better-city/shared": [
+        "packages/shared/src"
+      ],
+      "@better-city/i18n": [
+        "packages/i18n/src"
+      ],
+      "@better-city/permissions": [
+        "packages/permissions/src"
+      ]
+    }
+  }
+}
