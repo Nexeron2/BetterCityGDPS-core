@@ -1,6 +1,6 @@
 # Better City GDPS Core
 
-TypeScript-first GDPS core with legacy `.php` endpoint compatibility, a modern dashboard, installer, and migration tooling for the provided PHP core.
+Full Typescript GDPS core, a modern dashboard, installer, and migration tooling for the provided PHP core.
 
 ## Workspace layout
 
@@ -14,7 +14,7 @@ TypeScript-first GDPS core with legacy `.php` endpoint compatibility, a modern d
 
 ## Current status
 
-This repository currently contains the initial monorepo scaffold and a runnable `core-api` foundation with healthchecks, legacy route mapping, and placeholder GDPS endpoint responses.
+This repository currently contains the initial monorepo scaffold and a runnable `core-api` foundation with healthchecks, and placeholder GDPS endpoint responses.
 
 ## Core API quick start
 
